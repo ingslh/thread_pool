@@ -1,5 +1,18 @@
+/**
+ * 几个需要注意的点:
+ * 1、tasks的读写锁需要优化成带优先级的锁, 可以肯定线程池的绝大部分使用场景commit task比run task更密集
+ * 2、根据tasks以及cpu扩展线程数
+ * 3、支持允许缓存的task数,如果超出此数将采取拒绝策略
+ * 4、拒绝策略
+ * 使用方式：
+ * auto thread_pool = std::make_shared<ThreadPool>(items.size());
+ * thread_pool->start();
+ * for(auto item : items){
+ *     thread_pool->commit(std::bing(&someProgressFunc, &object, std::cref(arg1), arg2));
+ * }
+ * thread_pool.reset();
+*/
 #pragma once
-
 #include <memory>
 #include <functional>
 #include <future>
@@ -9,17 +22,10 @@
 #include <vector>
 #include <thread>
 #include <typeinfo>
-/**
- * 几个需要注意的点:
- * 1、tasks的读写锁需要优化成带优先级的锁, 可以肯定线程池的绝大部分使用场景commit task比run task更密集
- * 2、根据tasks以及cpu扩展线程数
- * 3、支持允许缓存的task数,如果超出此数将采取拒绝策略
- * 4、拒绝策略
-*/
 class ThreadPool {
 public:
 
-    ThreadPool(int core, int max = 0, int cache = 0): core_(core),//由于max和cache暂时没用到,因此赋值0
+    ThreadPool(int core, int max = 0, int cache = 0): core_(core),
         max_(max), cache_(cache), quit_(false), force_(false) {
 
     }
