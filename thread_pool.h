@@ -70,7 +70,8 @@ public:
         this->force_.store(force);
     }
 
-    //void commit(std::function<void (void * param)> task);
+    //c++11:使用auto完成返回类型后置，使用decltype完成尾返回类型（trailing return type）
+    //c++14中可省略尾返回类型，可定义为auto commit(T && t, Args&&...args)，auto实现自动推导
     template<class T, class... Args>
     auto commit(T && t, Args&&...args)->std::future<decltype(t(args...))> {
         using TYPE = decltype(t(args...));
