@@ -73,14 +73,14 @@ public:
     //c++11:使用auto完成返回类型后置，使用decltype完成尾返回类型（trailing return type）
     //c++14中可省略尾返回类型，可定义为auto commit(T && t, Args&&...args)，auto实现自动推导
     template<class T, class... Args>
-    auto commit(T && t, Args&&...args)->std::future<decltype(t(args...))> {
+    auto commit(T && t, Args&&...args)->std::future<decltype(t(args...))> {//形参类型都为右值引用
         using TYPE = decltype(t(args...));
         if (this->quit_.load()) {
             //dont know return what, so throw an exception
             throw std::runtime_error("thread pool is alreay shutdown.");
         }
         auto task = std::make_shared<std::packaged_task<TYPE()> >(
-            std::bind(std::forward<T>(t), std::forward<Args>(args)...)
+            std::bind(std::forward<T>(t), std::forward<Args>(args)...)//使用std::forward进行参数转发（传递）,以保持原有的参数引用类型
             );
         std::future<TYPE> result = task->get_future();
         std::lock_guard<std::mutex> lock(this->oper_lock_);
