@@ -80,7 +80,7 @@ public:
             throw std::runtime_error("thread pool is alreay shutdown.");
         }
         auto task = std::make_shared<std::packaged_task<TYPE()> >(
-            std::bind(std::forward<T>(t), std::forward<Args>(args)...)//使用std::forward进行参数转发（传递）,以保持原有的参数引用类型
+            std::bind(std::forward<T>(t), std::forward<Args>(args)...)//使用std::forward进行参数转发（传递）,以保持原有的参数引用类型（左值引用，右值引用）
             );
         std::future<TYPE> result = task->get_future();
         std::lock_guard<std::mutex> lock(this->oper_lock_);
@@ -97,6 +97,6 @@ private:
 
     std::atomic<bool> quit_;     //线程池shutdown条件, true时shutdown
     std::atomic<bool> force_;    //是否强制shutdown,true时有剩余的task将不执行直接退出, false时等待执行完所有的task再退出
-    std::condition_variable enable_;     //
+    std::condition_variable enable_;     //条件变量
     std::mutex oper_lock_;   // queue的读写锁
 };
