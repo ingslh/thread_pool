@@ -90,7 +90,7 @@ public:
     }
 private:
     std::vector<std::thread> pool_;
-    std::queue<std::function<void()> > tasks_;
+    std::queue<std::function<void()> > tasks_; //使用队列，先入先出（stack为先入后出）
     int core_;   //线程池核心线程数
     int max_;    //线程池根据tasks量以及cpu数最大可扩展的量
     int cache_;  //运行tasks可缓存的最大task数,超出次数后commit将采取拒绝策略
